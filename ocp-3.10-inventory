@@ -94,7 +94,3 @@ openshift-node1.r9-hx.local ip=192.168.165.201 hostname=openshift-node1 openshif
 openshift-node2.r9-hx.local ip=192.168.165.202 hostname=openshift-node2 openshift_schedulable=True openshift_node_group_name='node-config-compute'
 openshift-infra1.r9-hx.local ip=192.168.165.203 hostname=openshift-infra1 openshift_schedulable=True openshift_node_group_name='node-config-infra'
 openshift-infra2.r9-hx.local ip=192.168.165.204 hostname=openshift-infra2 openshift_schedulable=True openshift_node_group_name='node-config-infra'
-
-[hxflexvol]
-openshift-node1.r9-hx.local
-openshift-node2.r9-hx.local
