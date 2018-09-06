@@ -1,4 +1,4 @@
-# openshift-3.10
+README
 
 I. PRE-REQUISITES:
 
