@@ -1,0 +1,100 @@
+localhost ansible_connection=local ansible_ssh_user=root
+
+[all:vars]
+
+### GLOBALS ###
+
+#Enter the netmask for the management network
+netmask=<netmask>
+
+#Enter the gateway for the management network
+gateway=<gateway>
+
+#Enter the DNS server for the management network. Note: your Openshift node hostnames must be preconfigure in DNS to resolve to the proper IP addresses
+dns_servers=<dns_servers>
+
+#Enter the domain name, for example "hx.local" or "lab.cisco.com"
+domain_name=<domain_name>
+
+
+### VCENTER VARIABLES ###
+
+#Enter the vCenter server IP address
+vcenter_ip=<vcenter_ip>
+
+#Enter the vCenter server username with administrative privileges
+vcenter_user=<vcenter_user>
+
+#Enter the vCenter server password for the username provided above
+vcenter_password=<vcenter_password>
+
+#Enter the name of the VMware datacenter where the OpenShift nodes should be deployed
+vcenter_datacenter=<vcenter_datacenter>
+
+#Enter the name of the VMware ESXi cluster where the OpenShift nodes shoud be deployed
+vcenter_cluster=<vcenter_cluster>
+
+#Enter the name of the VMware folder where the OpenShift nodes should be deployed
+vcenter_folder="Discovered virtual machine"
+
+#Enter the name of the VMware resource pool where the OpenShift nodes should be deployed
+vcenter_resourcepool=<vcenter_resourcepool>
+
+#Enter the VMware datastore where the OpenShift nodes should be deployed
+vcenter_datastore=<vcenter_datastore>
+
+#Enter the VMware portgroup that should be used for deploying the OpenShift nodes (i.e. management network portgroup for the ocp cluster)
+vcenter_network=<vcenter_network>
+
+#Enter the name of the VM template that will be used for deploying the OpenShift nodes
+template_name=<template_name>
+
+#Enter the username for the template (i.e. usually root)
+template_user=<template_username>
+
+#Enter the password for the template (i.e. default template is "Cisco123")
+template_password=<template_password>
+
+#Enter the disk size for the OpensShift nodes
+disk_size_GB=<disk_size>
+
+
+### REDHAT SUBSCRIPTION MANAGER VARIABLES
+
+#Enter your Redhat subscription username
+rhsm_username=<rhsm_username>
+
+#Enter your Redhat subscription password
+rhsm_password=<rhsm_password>
+
+#Enter you Redhat subscription poo ID. Note: make sure this is the pool ID that corresponds to OpenShift entitlement.
+rhsm_pool_id=<rhsm_pool_id>
+
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[OSEv3:vars]
+ansible_ssh_user=root
+openshift_deployment_type=openshift-enterprise
+#osm_cluster_network_cidr=172.16.0.0/14
+
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+
+[masters]
+openshift-master.r9-hx.local
+
+[etcd]
+openshift-master.r9-hx.local
+
+[nodes]
+openshift-master.r9-hx.local ip=192.168.165.200 hostname=openshift-master openshift_schedulable=True openshift_node_group_name='node-config-master'
+openshift-node1.r9-hx.local ip=192.168.165.201 hostname=openshift-node1 openshift_schedulable=True openshift_node_group_name='node-config-compute'
+openshift-node2.r9-hx.local ip=192.168.165.202 hostname=openshift-node2 openshift_schedulable=True openshift_node_group_name='node-config-compute'
+openshift-infra1.r9-hx.local ip=192.168.165.203 hostname=openshift-infra1 openshift_schedulable=True openshift_node_group_name='node-config-infra'
+openshift-infra2.r9-hx.local ip=192.168.165.204 hostname=openshift-infra2 openshift_schedulable=True openshift_node_group_name='node-config-infra'
+
+[hxflexvol]
+openshift-node1.r9-hx.local
+openshift-node2.r9-hx.local

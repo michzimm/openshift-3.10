@@ -1,0 +1,135 @@
+---
+- name: Configure OpenShift Node Pre-Requisites
+  hosts: nodes
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: "{{ template_user }}"
+    ansible_ssh_pass: "{{ template_password }}"
+  remote_user: root
+  tasks:
+  - name: Ping hosts
+    ping:
+  - name: Set authorized keys for passwordless access
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+  - name: Add required directories to $PATH
+    copy:
+      dest: /etc/profile.d/custom-path.sh
+      content: 'PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin'
+  - name: Configure NetworkManager
+    lineinfile:
+      dest: /etc/sysconfig/network-scripts/ifcfg-ens192
+      line: 'NM_CONTROLLED=yes'
+      insertafter: 'ONBOOT=yes'
+  - name: Register hosts with Redhat subscription manager
+    redhat_subscription:
+      state: present
+      username: "{{ rhsm_username }}" 
+      password: "{{ rhsm_password }}"
+      pool_ids: "{{ rhsm_pool_id }}"
+  - name: Disable all Redhat repositories
+    rhsm_repository:
+      name: '*'
+      state: disabled
+  - name: Enable repositories required for OpenShift
+    rhsm_repository:
+      name: rhel-7-server-rpms,rhel-7-server-extras-rpms,rhel-7-server-ose-3.10-rpms,rhel-7-fast-datapath-rpms,rhel-7-server-ansible-2.4-rpms
+      state: enabled
+  - name: Install required base packages -> wget
+    yum:
+      name: wget
+      state: present
+  - name: Install required base packages -> git
+    yum:
+      name: git
+      state: present
+  - name: Install required base packages -> net-tools
+    yum:
+      name: net-tools
+      state: present
+  - name: Install required base packages -> bind-utils
+    yum:
+      name: bind-utils
+      state: present
+  - name: Install required base packages -> yum-utils
+    yum:
+      name: yum-utils
+      state: present
+  - name: Install required base packages -> iptables-services
+    yum:
+      name: iptables-services
+      state: present
+  - name: Install required base packages -> bridge-utils
+    yum:
+      name: bridge-utils
+      state: present
+  - name: Install required base packages -> bash-completion
+    yum:
+      name: bash-completion
+      state: present
+  - name: Install required base packages -> kexec-tools
+    yum:
+      name: kexec-tools
+      state: present
+  - name: Install required base packages -> sos
+    yum:
+      name: sos
+      state: present
+  - name: Install required base packages -> psacct
+    yum:
+      name: psacct
+      state: present
+  - name: Perform yum update
+    yum:
+      name: '*'
+      state: latest
+  - name: Reboot hosts
+    shell: "sleep 5 && reboot"
+    async: 1
+    poll: 0
+  - name: Wait for hosts to reboot
+    wait_for_connection:
+      connect_timeout: 20
+      sleep: 5
+      delay: 5
+      timeout: 300
+  - name: Install openshift-ansible package
+    yum:
+      name: openshift-ansible
+      state: present
+  - name: Install docker 1.13.1
+    yum:
+      name: docker-1.13.1
+      state: present
+  - name: Edit docker storage setup
+    lineinfile:
+      path: /etc/sysconfig/docker-storage-setup
+      line: "{{ item.line }}"
+    with_items:
+      - { line: 'DEVS="/dev/sdb"' }
+      - { line: 'VG="docker-vol"' }
+      - { line: 'DATA_SIZE="95%VG"' }
+      - { line: 'STORAGE_DRIVER=overlay2' }
+      - { line: 'CONTAINER_ROOT_LV_NAME="dockerlv"' }
+      - { line: 'CONTAINER_ROOT_LV_MOUNT_PATH="/var/lib/docker"' }
+      - { line: 'CONTAINER_ROOT_LV_SIZE=100%FREE' }
+  - name: Setup docker storage
+    shell: docker-storage-setup
+  - name: Enable docker service
+    service:
+      name: docker
+      enabled: yes
+  - name: Stop docker service (if running)
+    service:
+      name: docker
+      state: stopped
+  - name: Re-initialize docker service
+    file:
+      path: /var/lib/docker/*
+      state: absent
+  - name: Start docker service
+    service:
+      name: docker
+      state: started

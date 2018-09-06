@@ -1,0 +1,92 @@
+---
+- name: Configure HyperFlex FlexVolume Plugin on Nodes
+  hosts: hxflexvol
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: "{{ template_user }}"
+    ansible_ssh_pass: "{{ template_password }}"
+  remote_user: root
+  tasks:
+  - name: Ping hosts
+    ping:
+  - name: Install required packages -> unzip
+    yum:
+      name: unzip
+      state: present
+  - name: Install required packages -> open-iscsi
+    yum:
+      name: open-iscsi
+      state: present
+  - name: Install required packages -> avahi-autoipd
+    yum:
+      name: avahi-autoipd
+      state: present
+  - name: Copy hxkube zip to target and unarchive
+    unarchive:
+      src: "/etc/ansible/hxkube-release-{{ flexvol-version }}.zip"
+      dest: /tmp
+  - name: Install hxflexvolume driver rpm package  
+    yum:
+      name: "/tmp/hxvolume-plugin-{{ flexvol-version }}-1.x86_64.rpm"
+      state: present
+  - name: Run hxvolume driver init
+    shell: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/hyperflex~hxvolume/hxvolume init
+  - name: Restart kubelet service
+    service:
+      name: kubelet
+      state: restarted
+---
+- name: Configure HyperFlex FlexVolume Provisioner on Master Nodes
+  hosts: masters
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: "{{ template_user }}"
+    ansible_ssh_pass: "{{ template_password }}"
+  remote_user: root
+  tasks:
+  - name: Ping hosts
+    ping:
+  - name: Copy hxkube zip to target and unarchive
+      unarchive:
+        src: /etc/ansible/hxkube-release-{{ flexvol-version }}.zip
+        dest: /tmp
+
+
+
+
+
+
+
+
+
+
+- name: Edit docker storage setup
+    lineinfile:
+      path: /etc/sysconfig/docker-storage-setup
+      line: "{{ item.line }}"
+    with_items:
+      - { line: 'DEVS="/dev/sdb"' }
+      - { line: 'VG="docker-vol"' }
+      - { line: 'DATA_SIZE="95%VG"' }
+      - { line: 'STORAGE_DRIVER=overlay2' }
+      - { line: 'CONTAINER_ROOT_LV_NAME="dockerlv"' }
+      - { line: 'CONTAINER_ROOT_LV_MOUNT_PATH="/var/lib/docker"' }
+      - { line: 'CONTAINER_ROOT_LV_SIZE=100%FREE' }
+  - name: Setup docker storage
+    shell: docker-storage-setup
+  - name: Enable docker service
+    service:
+      name: docker
+      enabled: yes
+  - name: Stop docker service (if running)
+    service:
+      name: docker
+      state: stopped
+  - name: Re-initialize docker service
+    file:
+      path: /var/lib/docker/*
+      state: absent
+  - name: Start docker service
+    service:
+      name: docker
+      state: started

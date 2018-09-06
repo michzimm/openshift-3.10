@@ -1,0 +1,5 @@
+---
+- import_playbook: ./ocp-3.10-deploy-nodes.yml
+- import_playbook: ./ocp-3.10-config-nodes.yml
+- import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+- import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
