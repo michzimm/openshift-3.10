@@ -23,4 +23,8 @@
   - only a signle interface is needed, playbook will add additional interface for HX iSCSI PV traffic
   - install RHEL 7.x accepting defaults, only providing root password during installation
     
-## II. USE
+## II. EDITING THE ANSIBLE INVENTORY FILE:
+  - Edit the "ocp-3.10-inventory" file and update the information based on your environment.
+  
+## III. RUNNING THE PLAYBOOK
+  - Run `ansible-playbook -i <path-to-inventory-file> <path-to-ocp-3.10-cluster-setup.yml>`
