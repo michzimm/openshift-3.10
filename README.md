@@ -1,4 +1,4 @@
-README
+HyperFlex OpenShift 3.10 Install Automation
 
 I. PRE-REQUISITES:
 
