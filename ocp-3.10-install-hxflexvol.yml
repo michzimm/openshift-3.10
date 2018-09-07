@@ -1,0 +1,57 @@
+---
+- name: Configure HyperFlex FlexVolume Plugin on Nodes
+  hosts: hxflexvol
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: "{{ template_user }}"
+    ansible_ssh_pass: "{{ template_password }}"
+  remote_user: root
+  tasks:
+  - name: Ping hosts
+    ping:
+  - name: Install required packages -> unzip
+    yum:
+      name: unzip
+      state: present
+  - name: Install required packages -> iscsi-initiator-utils
+    yum:
+      name: iscsi-initiator-utils
+      state: present
+  - name: Install required packages -> avahi-autoipd
+    yum:
+      name: avahi-autoipd
+      state: present
+  - name: Copy hxkube zip to target and unarchive
+    unarchive:
+      src: "/etc/ansible/hxkube-release-{{ flexvol_version }}.zip"
+      dest: /tmp
+  - name: Install hxflexvolume driver rpm package  
+    yum:
+      name: "/tmp/hxvolume-plugin-{{ flexvol_version }}-1.x86_64.rpm"
+      state: present
+  - name: Run hxvolume driver init
+    shell: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/hyperflex~hxvolume/hxvolume init
+  - name: Restart kubelet service
+    service:
+      name: kubelet
+      state: restarted
+---
+- name: Configure HyperFlex FlexVolume Provisioner on Master Nodes
+  hosts: masters
+  vars:
+    ansible_connection: ssh
+    ansible_ssh_user: "{{ template_user }}"
+    ansible_ssh_pass: "{{ template_password }}"
+  remote_user: root
+  tasks:
+  - name: Ping hosts
+    ping:
+  - name: Copy hxkube zip to target and unarchive
+    unarchive:
+      src: /etc/ansible/hxkube-release-{{ flexvol_version }}.zip
+      dest: /tmp
+  - name:
+    fetch:
+      src: /etc/origin/master/admin.kubeconfig
+      dest: ~/.kube/config
+      flat: yes
