@@ -8,7 +8,7 @@
 1. All Openshift nodes that will be provisioned should be configured and resolveable in DNS prior to running ansible playbooks
     
 ### C. Ansible Host: (host from which ansible playbooks will be run)
-- Should be RHEL or CentOS
+- Should be RHEL OS
 - Required Software Packages: (tested with the following)
     - ansible >= v2.6.x
     - python >= v2.7.x
