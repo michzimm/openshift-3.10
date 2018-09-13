@@ -9,10 +9,10 @@
     
 ### C. Ansible Host: (host from which ansible playbooks will be run)
 - Should be RHEL or CentOS
-- Required Software Packages:
-    - ansible >= v2.6
-    - pyhton >= v2.6
-    - PyVmomi (for deployment of OpenShift nodes)
+- Required Software Packages: (tested with the following)
+    - ansible >= v2.6.x
+    - python >= v2.7.x
+    - PyVmomi >= 6.7.x (for deployment of OpenShift nodes)
     - openshift-ansible 3.10.x --> https://github.com/openshift/openshift-ansible/tree/release-3.10 --> clone repo to /usr/share/ansible/ directory.
 - Required Configuration:
     - must have SSH RSA public key generated as "~/.ssh/id_rsa.pub" (playbooks will copy public key to deployed nodes for passwordless SSH)
