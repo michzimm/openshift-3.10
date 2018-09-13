@@ -24,6 +24,7 @@
   - only a signle interface is needed, playbook will add additional interface for HX iSCSI PV traffic
   - install RHEL 7.x accepting defaults, only providing root password during installation
   - IMPORTANT: you need to edit the /etc/ssh/sshd_config file and set "PermitRootLogin" to "yes" on the template VM.
+  - IMPORTANT: disable IPv6 --> https://www.thegeekdiary.com/centos-rhel-7-how-to-disable-ipv6/
     
 ## II. EDITING THE ANSIBLE INVENTORY FILE:
   - Edit the "ocp-3.10-inventory" file and update the information based on your environment.
