@@ -1,6 +1,7 @@
 ---
 - name: Configure OpenShift Node Pre-Requisites
   hosts: nodes
+  gather_facts: no
   vars:
     ansible_connection: ssh
     ansible_ssh_user: "{{ template_user }}"
