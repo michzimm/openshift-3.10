@@ -17,6 +17,7 @@
 - Required Configuration:
     - must have SSH RSA public key generated as "~/.ssh/id_rsa.pub" (playbooks will copy public key to deployed nodes for passwordless SSH)
     - must be configured to use DNS server with hostname to IP resolution for all intended hosts
+    - must uncomment line "host_key_checking=False" in /etc/ansible/ansible.cfg file.
 
 ### D. Template VM
   - this VM will be used to clone the OpenShift nodes.
