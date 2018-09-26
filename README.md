@@ -13,7 +13,7 @@
     - ansible >= v2.6.x
     - python >= v2.7.x
     - PyVmomi >= 6.7.x (for deployment of OpenShift nodes)
-    - openshift-ansible 3.10.x --> https://github.com/openshift/openshift-ansible/tree/release-3.10 --> clone repo to /usr/share/ansible/ directory.
+    - openshift-ansible == 3.10.21-1.git.0.6446011.el7 (I had issues with later 3.10.x versions of this package, seems to consistently work with the version mentioned)
 - Required Configuration:
     - must have SSH RSA public key generated as "~/.ssh/id_rsa.pub" (playbooks will copy public key to deployed nodes for passwordless SSH)
     - must be configured to use DNS server with hostname to IP resolution for all intended hosts
